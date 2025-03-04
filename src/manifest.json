@@ -1,13 +1,11 @@
 {
   "manifest_version": 3,
   "name": "AlgoMeter AI: Big O Insights for LeetCode",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Get the Big O notation of your LeetCode code. Time and space complexity analysis using AI.",
   "permissions": [
     "storage",
-    "activeTab",
-    "tabs",
-    "scripting"
+    "activeTab"
   ],
   "host_permissions": [
     "https://leetcode.com/*"

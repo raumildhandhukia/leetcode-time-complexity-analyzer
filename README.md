@@ -2,6 +2,23 @@
 
 A Chrome extension that adds a draggable and collapsible time complexity analyzer to LeetCode's coding interface.
 
+## Tech Stack
+
+- **Frontend**:
+  - React with TypeScript
+  - CSS Modules for styling
+  - react-draggable for component positioning
+
+- **Chrome Extension**:
+  - Manifest V3
+  - Content Scripts for DOM interaction
+  - Chrome Storage API for state management
+
+- **Build Tools**:
+  - Webpack for bundling
+  - TypeScript for type safety
+  - ESLint for code quality
+
 ## Features
 
 - Automatically detects Monaco editor on LeetCode
@@ -38,3 +55,7 @@ A Chrome extension that adds a draggable and collapsible time complexity analyze
 2. The analyzer will automatically appear when the Monaco editor is detected
 3. Drag the analyzer using the header bar
 4. Collapse/expand using the button on the right edge
+
+
+npm run build
+cd /Users/raumildhandhukia/CascadeProjects/leetcode-time-analyzer && npm run build
