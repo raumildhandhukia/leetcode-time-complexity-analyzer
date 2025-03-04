@@ -11,18 +11,13 @@
 .container {
   position: fixed;
   z-index: 99999;
-  background-color: #1a1a1a;
-  color: #ffffff;
-  border: 2px solid #4a4a4a;
-  border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-  min-height: 100px;
-  max-height: 400px;
+  background-color: transparent;
+  color: rgb(222, 222, 222);
   transition: all 0.3s ease;
   display: flex;
-  overflow: hidden;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
   pointer-events: auto;
+  max-height: 500px;
 }
 
 .container.expanded {
@@ -30,67 +25,207 @@
 }
 
 .container.collapsed {
-  width: 40px;
+  width: 60px;
 }
 
-.content {
-  flex: 1;
-  padding: 16px;
-  background-color: #1a1a1a;
+.container.collapsed .handle {
+  padding: 8px;
+  gap: 4px;
+  justify-content: space-between;
 }
 
-.content.collapsed {
-  display: none;
+.container.collapsed .dragHandle {
+  font-size: 16px;
 }
 
-.collapseButton {
-  width: 40px;
-  background-color: #333;
-  border: none;
-  cursor: pointer;
-  color: #fff;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0;
-  font-size: 18px;
-  transition: background-color 0.2s;
-  outline: none;
-}
-
-.collapseButton:hover {
-  background-color: #444;
-}
-
-.collapseButton.expanded {
-  border-left: 1px solid #444;
-}
-
-.handle {
-  background-color: #2a2a2a;
-  padding: 12px 16px;
-  cursor: move;
-  border-bottom: 1px solid #444;
+.container.collapsed .collapseButton {
+  padding: 4px 8px;
   font-size: 14px;
-  font-weight: bold;
-  user-select: none;
-  display: flex;
-  align-items: center;
-  color: #00ff00;
-}
-
-.handle.collapsed {
-  display: none;
 }
 
 .mainContent {
   flex: 1;
   display: flex;
   flex-direction: column;
+  overflow: hidden;
 }
 
-.hint {
+.handle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px;
+  cursor: move;
+  user-select: none;
+  background-color: rgb(26, 26, 26);
+  border-radius: 6px;
+  border: 1px solid rgb(61, 61, 61);
+  transition: all 0.3s ease;
+}
+
+.dragHandle {
+  color: rgb(150, 150, 150);
+  font-size: 16px;
+  line-height: 1;
+  cursor: move;
+  transition: all 0.3s ease;
+}
+
+.content {
+  padding: 0;
+  background-color: transparent;
+  overflow-y: auto;
+  max-height: calc(500px - 60px);
+  opacity: 1;
+  transition: opacity 0.3s ease;
+}
+
+.container.collapsed .content {
+  opacity: 0;
+}
+
+.analyzeButton {
+  flex: 1;
+  background-color: rgb(45, 181, 93);
+  color: rgb(255, 255, 255);
+  padding: 8px 16px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 1;
+  transition: all 0.3s ease;
+  white-space: nowrap;
+  overflow: hidden;
+  width: auto;
+}
+
+.container.collapsed .analyzeButton {
+  width: 0;
+  opacity: 0;
+  padding: 0;
+  margin: 0;
+}
+
+.analyzeButton:hover:not(:disabled) {
+  background-color: rgb(40, 160, 82);
+}
+
+.analyzeButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.collapseButton {
+  background-color: transparent;
+  border: none;
+  color: rgb(150, 150, 150);
+  cursor: pointer;
+  padding: 4px 8px;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.2s;
+}
+
+.collapseButton:hover {
+  color: rgb(200, 200, 200);
+}
+
+.results {
+  background-color: rgb(26, 26, 26);
+  border-radius: 6px;
+  border: 1px solid rgb(61, 61, 61);
+  padding: 12px;
+  margin-top: 0;
+}
+
+.complexity {
+  margin-bottom: 8px;
+  font-size: 13px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.complexity strong {
+  color: rgb(255, 161, 22);
+  font-weight: 500;
+  min-width: 45px;
+}
+
+.explanationToggle {
+  background-color: transparent;
+  color: rgb(255, 161, 22);
+  padding: 6px 12px;
+  border: 1px solid rgb(61, 61, 61);
+  border-radius: 5px;
+  cursor: pointer;
   font-size: 12px;
-  color: #888;
+  width: 100%;
+  transition: all 0.2s ease;
   margin-top: 8px;
+}
+
+.explanationToggle:hover {
+  background-color: rgba(255, 161, 22, 0.1);
+}
+
+.explanation {
+  margin-top: 8px;
+  padding: 8px;
+  background-color: rgb(38, 38, 38);
+  border-radius: 5px;
+  font-size: 12px;
+  line-height: 1.5;
+  max-height: 250px;
+  overflow-y: auto;
+  color: rgb(200, 200, 200);
+  border: 1px solid rgb(61, 61, 61);
+}
+
+.explanation::-webkit-scrollbar {
+  width: 4px;
+}
+
+.explanation::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.explanation::-webkit-scrollbar-thumb {
+  background: rgb(61, 61, 61);
+  border-radius: 2px;
+}
+
+.explanation::-webkit-scrollbar-thumb:hover {
+  background: rgb(82, 82, 82);
+}
+
+.error {
+  color: rgb(255, 76, 76);
+  font-size: 12px;
+  margin: 8px 0;
+  padding: 8px;
+  background-color: rgba(255, 76, 76, 0.1);
+  border-radius: 5px;
+  border: 1px solid rgba(255, 76, 76, 0.2);
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.loader {
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgb(255, 255, 255);
+  border-top-color: transparent;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
 }

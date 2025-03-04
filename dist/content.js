@@ -795,6 +795,202 @@ module.exports = styleTagTransform;
 
 /***/ }),
 
+/***/ 150:
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+
+"use strict";
+
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || (function () {
+    var ownKeys = function(o) {
+        ownKeys = Object.getOwnPropertyNames || function (o) {
+            var ar = [];
+            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
+            return ar;
+        };
+        return ownKeys(o);
+    };
+    return function (mod) {
+        if (mod && mod.__esModule) return mod;
+        var result = {};
+        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
+        __setModuleDefault(result, mod);
+        return result;
+    };
+})();
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+const react_1 = __importStar(__webpack_require__(540));
+const react_draggable_1 = __importDefault(__webpack_require__(794));
+const Analyzer_module_css_1 = __importDefault(__webpack_require__(608));
+const Analyzer = () => {
+    const [isCollapsed, setIsCollapsed] = (0, react_1.useState)(false);
+    const [position, setPosition] = (0, react_1.useState)({ x: 0, y: 0 });
+    const [isLoading, setIsLoading] = (0, react_1.useState)(false);
+    const [analysisResult, setAnalysisResult] = (0, react_1.useState)(null);
+    const [showExplanation, setShowExplanation] = (0, react_1.useState)(false);
+    const [countdown, setCountdown] = (0, react_1.useState)(null);
+    const [error, setError] = (0, react_1.useState)(null);
+    (0, react_1.useEffect)(() => {
+        const setInitialPosition = () => {
+            const width = isCollapsed ? 50 : 320;
+            setPosition({
+                x: Math.max(0, window.innerWidth - width - 20),
+                y: 100
+            });
+        };
+        setInitialPosition();
+        window.addEventListener('resize', setInitialPosition);
+        return () => window.removeEventListener('resize', setInitialPosition);
+    }, [isCollapsed]);
+    const handleDrag = (_e, data) => {
+        setPosition({ x: data.x, y: data.y });
+    };
+    const toggleCollapse = () => {
+        const newCollapsed = !isCollapsed;
+        setIsCollapsed(newCollapsed);
+        setPosition(pos => ({
+            x: pos.x + (newCollapsed ? 260 : -260),
+            y: pos.y
+        }));
+    };
+    const getLeetCodeEditorValue = () => {
+        var _a, _b, _c;
+        let editor = document.querySelector('.monaco-editor');
+        if (!editor) {
+            const iframes = document.querySelectorAll('iframe');
+            for (const iframe of iframes) {
+                try {
+                    const iframeEditor = (_a = iframe.contentDocument) === null || _a === void 0 ? void 0 : _a.querySelector('.monaco-editor');
+                    if (iframeEditor) {
+                        editor = iframeEditor;
+                        break;
+                    }
+                }
+                catch (e) {
+                    console.log('Cannot access iframe content due to same-origin policy');
+                }
+            }
+        }
+        if (editor) {
+            const codeElement = editor.querySelector('.view-lines');
+            if (codeElement) {
+                return codeElement.textContent || null;
+            }
+        }
+        if ((_c = (_b = window.monaco) === null || _b === void 0 ? void 0 : _b.editor) === null || _c === void 0 ? void 0 : _c.getModels) {
+            const models = window.monaco.editor.getModels();
+            if (models.length > 0) {
+                return models[0].getValue();
+            }
+        }
+        return null;
+    };
+    const analyzeCode = () => __awaiter(void 0, void 0, void 0, function* () {
+        setIsLoading(true);
+        setError(null);
+        setAnalysisResult(null);
+        const code = getLeetCodeEditorValue();
+        if (!code) {
+            setError('No code found in editor');
+            setIsLoading(false);
+            return;
+        }
+        try {
+            const res = yield fetch('https://big-o-insights-back.vercel.app/api/analyze', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    code_snippet: code
+                })
+            });
+            const data = yield res.json();
+            if (res.status === 429) {
+                setCountdown(data.seconds_left);
+                const timer = setInterval(() => {
+                    setCountdown(prev => {
+                        if (prev === null || prev <= 1) {
+                            clearInterval(timer);
+                            return null;
+                        }
+                        return prev - 1;
+                    });
+                }, 1000);
+                return;
+            }
+            if (!res.ok) {
+                throw new Error(`HTTP error! status: ${res.status}`);
+            }
+            const { response } = data;
+            setAnalysisResult({
+                timeComplexity: response.time_complexity,
+                spaceComplexity: response.space_complexity,
+                explanation: response.explanation
+            });
+        }
+        catch (err) {
+            setError('Failed to analyze code. Please try again.');
+        }
+        finally {
+            setIsLoading(false);
+        }
+    });
+    return (react_1.default.createElement("div", { className: Analyzer_module_css_1.default.wrapper },
+        react_1.default.createElement(react_draggable_1.default, { handle: `.${Analyzer_module_css_1.default.handle}`, position: position, onDrag: handleDrag, bounds: "parent" },
+            react_1.default.createElement("div", { className: `${Analyzer_module_css_1.default.container} ${isCollapsed ? Analyzer_module_css_1.default.collapsed : Analyzer_module_css_1.default.expanded}` },
+                react_1.default.createElement("div", { className: Analyzer_module_css_1.default.mainContent },
+                    react_1.default.createElement("div", { className: `${Analyzer_module_css_1.default.handle}` },
+                        react_1.default.createElement("div", { className: Analyzer_module_css_1.default.dragHandle }, "\u283F"),
+                        !isCollapsed && (react_1.default.createElement("button", { className: Analyzer_module_css_1.default.analyzeButton, onClick: analyzeCode, disabled: isLoading || countdown !== null }, isLoading ? (react_1.default.createElement("div", { className: Analyzer_module_css_1.default.loader })) : countdown ? (`Wait ${countdown}s`) : ('Analyze Complexity'))),
+                        react_1.default.createElement("button", { className: Analyzer_module_css_1.default.collapseButton, onClick: toggleCollapse, "aria-label": isCollapsed ? 'Expand' : 'Collapse' }, isCollapsed ? '▶' : '◀')),
+                    !isCollapsed && (react_1.default.createElement("div", { className: Analyzer_module_css_1.default.content },
+                        error && (react_1.default.createElement("div", { className: Analyzer_module_css_1.default.error }, error)),
+                        analysisResult && (react_1.default.createElement("div", { className: Analyzer_module_css_1.default.results },
+                            react_1.default.createElement("div", { className: Analyzer_module_css_1.default.complexity },
+                                react_1.default.createElement("strong", null, "Time"),
+                                react_1.default.createElement("span", null, analysisResult.timeComplexity)),
+                            react_1.default.createElement("div", { className: Analyzer_module_css_1.default.complexity },
+                                react_1.default.createElement("strong", null, "Space"),
+                                react_1.default.createElement("span", null, analysisResult.spaceComplexity)),
+                            analysisResult.explanation && (react_1.default.createElement(react_1.default.Fragment, null,
+                                react_1.default.createElement("button", { className: Analyzer_module_css_1.default.explanationToggle, onClick: () => setShowExplanation(!showExplanation) },
+                                    showExplanation ? '▼ Hide' : '▶ Show',
+                                    " Explanation"),
+                                showExplanation && (react_1.default.createElement("div", { className: Analyzer_module_css_1.default.explanation }, analysisResult.explanation)))))))))))));
+};
+exports["default"] = Analyzer;
+
+
+/***/ }),
+
 /***/ 159:
 /***/ ((module) => {
 
@@ -841,18 +1037,13 @@ ___CSS_LOADER_EXPORT___.push([module.id, `.Analyzer-module__wrapper___Kmrlh {
 .Analyzer-module__container___rBHA1 {
   position: fixed;
   z-index: 99999;
-  background-color: #1a1a1a;
-  color: #ffffff;
-  border: 2px solid #4a4a4a;
-  border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-  min-height: 100px;
-  max-height: 400px;
+  background-color: transparent;
+  color: rgb(222, 222, 222);
   transition: all 0.3s ease;
   display: flex;
-  overflow: hidden;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
   pointer-events: auto;
+  max-height: 500px;
 }
 
 .Analyzer-module__container___rBHA1.Analyzer-module__expanded___pmgBP {
@@ -860,69 +1051,209 @@ ___CSS_LOADER_EXPORT___.push([module.id, `.Analyzer-module__wrapper___Kmrlh {
 }
 
 .Analyzer-module__container___rBHA1.Analyzer-module__collapsed___GLyht {
-  width: 40px;
+  width: 60px;
 }
 
-.Analyzer-module__content___MEBXn {
-  flex: 1;
-  padding: 16px;
-  background-color: #1a1a1a;
+.Analyzer-module__container___rBHA1.Analyzer-module__collapsed___GLyht .Analyzer-module__handle___MWIaF {
+  padding: 8px;
+  gap: 4px;
+  justify-content: space-between;
 }
 
-.Analyzer-module__content___MEBXn.Analyzer-module__collapsed___GLyht {
-  display: none;
+.Analyzer-module__container___rBHA1.Analyzer-module__collapsed___GLyht .Analyzer-module__dragHandle___g5P58 {
+  font-size: 16px;
 }
 
-.Analyzer-module__collapseButton___kyjgf {
-  width: 40px;
-  background-color: #333;
-  border: none;
-  cursor: pointer;
-  color: #fff;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0;
-  font-size: 18px;
-  transition: background-color 0.2s;
-  outline: none;
-}
-
-.Analyzer-module__collapseButton___kyjgf:hover {
-  background-color: #444;
-}
-
-.Analyzer-module__collapseButton___kyjgf.Analyzer-module__expanded___pmgBP {
-  border-left: 1px solid #444;
-}
-
-.Analyzer-module__handle___MWIaF {
-  background-color: #2a2a2a;
-  padding: 12px 16px;
-  cursor: move;
-  border-bottom: 1px solid #444;
+.Analyzer-module__container___rBHA1.Analyzer-module__collapsed___GLyht .Analyzer-module__collapseButton___kyjgf {
+  padding: 4px 8px;
   font-size: 14px;
-  font-weight: bold;
-  user-select: none;
-  display: flex;
-  align-items: center;
-  color: #00ff00;
-}
-
-.Analyzer-module__handle___MWIaF.Analyzer-module__collapsed___GLyht {
-  display: none;
 }
 
 .Analyzer-module__mainContent___lzdvV {
   flex: 1;
   display: flex;
   flex-direction: column;
+  overflow: hidden;
 }
 
-.Analyzer-module__hint___ORFPh {
+.Analyzer-module__handle___MWIaF {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px;
+  cursor: move;
+  user-select: none;
+  background-color: rgb(26, 26, 26);
+  border-radius: 6px;
+  border: 1px solid rgb(61, 61, 61);
+  transition: all 0.3s ease;
+}
+
+.Analyzer-module__dragHandle___g5P58 {
+  color: rgb(150, 150, 150);
+  font-size: 16px;
+  line-height: 1;
+  cursor: move;
+  transition: all 0.3s ease;
+}
+
+.Analyzer-module__content___MEBXn {
+  padding: 0;
+  background-color: transparent;
+  overflow-y: auto;
+  max-height: calc(500px - 60px);
+  opacity: 1;
+  transition: opacity 0.3s ease;
+}
+
+.Analyzer-module__container___rBHA1.Analyzer-module__collapsed___GLyht .Analyzer-module__content___MEBXn {
+  opacity: 0;
+}
+
+.Analyzer-module__analyzeButton___PU46o {
+  flex: 1;
+  background-color: rgb(45, 181, 93);
+  color: rgb(255, 255, 255);
+  padding: 8px 16px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 1;
+  transition: all 0.3s ease;
+  white-space: nowrap;
+  overflow: hidden;
+  width: auto;
+}
+
+.Analyzer-module__container___rBHA1.Analyzer-module__collapsed___GLyht .Analyzer-module__analyzeButton___PU46o {
+  width: 0;
+  opacity: 0;
+  padding: 0;
+  margin: 0;
+}
+
+.Analyzer-module__analyzeButton___PU46o:hover:not(:disabled) {
+  background-color: rgb(40, 160, 82);
+}
+
+.Analyzer-module__analyzeButton___PU46o:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.Analyzer-module__collapseButton___kyjgf {
+  background-color: transparent;
+  border: none;
+  color: rgb(150, 150, 150);
+  cursor: pointer;
+  padding: 4px 8px;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.2s;
+}
+
+.Analyzer-module__collapseButton___kyjgf:hover {
+  color: rgb(200, 200, 200);
+}
+
+.Analyzer-module__results___O2ojI {
+  background-color: rgb(26, 26, 26);
+  border-radius: 6px;
+  border: 1px solid rgb(61, 61, 61);
+  padding: 12px;
+  margin-top: 0;
+}
+
+.Analyzer-module__complexity___eH7ro {
+  margin-bottom: 8px;
+  font-size: 13px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.Analyzer-module__complexity___eH7ro strong {
+  color: rgb(255, 161, 22);
+  font-weight: 500;
+  min-width: 45px;
+}
+
+.Analyzer-module__explanationToggle___mtTRP {
+  background-color: transparent;
+  color: rgb(255, 161, 22);
+  padding: 6px 12px;
+  border: 1px solid rgb(61, 61, 61);
+  border-radius: 5px;
+  cursor: pointer;
   font-size: 12px;
-  color: #888;
+  width: 100%;
+  transition: all 0.2s ease;
   margin-top: 8px;
+}
+
+.Analyzer-module__explanationToggle___mtTRP:hover {
+  background-color: rgba(255, 161, 22, 0.1);
+}
+
+.Analyzer-module__explanation____nUtp {
+  margin-top: 8px;
+  padding: 8px;
+  background-color: rgb(38, 38, 38);
+  border-radius: 5px;
+  font-size: 12px;
+  line-height: 1.5;
+  max-height: 250px;
+  overflow-y: auto;
+  color: rgb(200, 200, 200);
+  border: 1px solid rgb(61, 61, 61);
+}
+
+.Analyzer-module__explanation____nUtp::-webkit-scrollbar {
+  width: 4px;
+}
+
+.Analyzer-module__explanation____nUtp::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.Analyzer-module__explanation____nUtp::-webkit-scrollbar-thumb {
+  background: rgb(61, 61, 61);
+  border-radius: 2px;
+}
+
+.Analyzer-module__explanation____nUtp::-webkit-scrollbar-thumb:hover {
+  background: rgb(82, 82, 82);
+}
+
+.Analyzer-module__error___wekHw {
+  color: rgb(255, 76, 76);
+  font-size: 12px;
+  margin: 8px 0;
+  padding: 8px;
+  background-color: rgba(255, 76, 76, 0.1);
+  border-radius: 5px;
+  border: 1px solid rgba(255, 76, 76, 0.2);
+}
+
+@keyframes Analyzer-module__spin___nB_QW {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.Analyzer-module__loader___FT2RC {
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgb(255, 255, 255);
+  border-top-color: transparent;
+  border-radius: 50%;
+  animation: Analyzer-module__spin___nB_QW 1s linear infinite;
 }
 `, ""]);
 // Exports
@@ -931,11 +1262,19 @@ ___CSS_LOADER_EXPORT___.locals = {
 	"container": `Analyzer-module__container___rBHA1`,
 	"expanded": `Analyzer-module__expanded___pmgBP`,
 	"collapsed": `Analyzer-module__collapsed___GLyht`,
-	"content": `Analyzer-module__content___MEBXn`,
-	"collapseButton": `Analyzer-module__collapseButton___kyjgf`,
 	"handle": `Analyzer-module__handle___MWIaF`,
+	"dragHandle": `Analyzer-module__dragHandle___g5P58`,
+	"collapseButton": `Analyzer-module__collapseButton___kyjgf`,
 	"mainContent": `Analyzer-module__mainContent___lzdvV`,
-	"hint": `Analyzer-module__hint___ORFPh`
+	"content": `Analyzer-module__content___MEBXn`,
+	"analyzeButton": `Analyzer-module__analyzeButton___PU46o`,
+	"results": `Analyzer-module__results___O2ojI`,
+	"complexity": `Analyzer-module__complexity___eH7ro`,
+	"explanationToggle": `Analyzer-module__explanationToggle___mtTRP`,
+	"explanation": `Analyzer-module__explanation____nUtp`,
+	"error": `Analyzer-module__error___wekHw`,
+	"loader": `Analyzer-module__loader___FT2RC`,
+	"spin": `Analyzer-module__spin___nB_QW`
 };
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (___CSS_LOADER_EXPORT___);
 
@@ -1065,82 +1404,6 @@ module.exports = function (cssWithMappingToString) {
   };
   return list;
 };
-
-/***/ }),
-
-/***/ 315:
-/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
-
-"use strict";
-
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-const react_1 = __importDefault(__webpack_require__(540));
-const client_1 = __webpack_require__(338);
-const Analyzer_1 = __importDefault(__webpack_require__(837));
-const LEETCODE_EDITOR_SELECTOR = '.monaco-editor';
-const CONTAINER_ID = 'leetcode-time-analyzer-root';
-function injectAnalyzer() {
-    // Remove any existing container
-    const existingContainer = document.getElementById(CONTAINER_ID);
-    if (existingContainer) {
-        existingContainer.remove();
-    }
-    // Create new container
-    const container = document.createElement('div');
-    container.id = CONTAINER_ID;
-    container.style.position = 'fixed';
-    container.style.top = '0';
-    container.style.left = '0';
-    container.style.width = '100%';
-    container.style.height = '100%';
-    container.style.zIndex = '99999';
-    container.style.pointerEvents = 'none';
-    document.body.appendChild(container);
-    // Create React root and render component
-    const root = (0, client_1.createRoot)(container);
-    root.render(react_1.default.createElement(Analyzer_1.default, null));
-    console.log('LeetCode Time Analyzer injected successfully');
-}
-function waitForEditor() {
-    console.log('Waiting for Monaco editor...');
-    // Check immediately
-    if (document.querySelector(LEETCODE_EDITOR_SELECTOR)) {
-        console.log('Monaco editor found immediately');
-        injectAnalyzer();
-        return;
-    }
-    // Set up mutation observer to watch for editor
-    const observer = new MutationObserver((mutations, obs) => {
-        const editor = document.querySelector(LEETCODE_EDITOR_SELECTOR);
-        if (editor) {
-            console.log('Monaco editor found via observer');
-            obs.disconnect();
-            // Wait a brief moment for the editor to fully initialize
-            setTimeout(injectAnalyzer, 500);
-        }
-    });
-    observer.observe(document.body, {
-        childList: true,
-        subtree: true,
-    });
-}
-// Start watching for editor as soon as possible
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', waitForEditor);
-}
-else {
-    waitForEditor();
-}
-// Keep connection with background script
-let port = chrome.runtime.connect({ name: 'keepAlive' });
-port.onDisconnect.addListener(() => {
-    console.log('Reconnecting to service worker...');
-    port = chrome.runtime.connect({ name: 'keepAlive' });
-});
-
 
 /***/ }),
 
@@ -1608,6 +1871,115 @@ if (false) { var throwOnDirectAccess, ReactIs; } else {
 
 /***/ }),
 
+/***/ 560:
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+
+"use strict";
+
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+const react_1 = __importDefault(__webpack_require__(540));
+const client_1 = __webpack_require__(338);
+const Analyzer_1 = __importDefault(__webpack_require__(150));
+const LEETCODE_EDITOR_SELECTOR = '.monaco-editor';
+const CONTAINER_ID = 'leetcode-time-analyzer-root';
+let container = null;
+let root = null;
+function mountComponent() {
+    if (!container) {
+        container = document.createElement('div');
+        container.id = CONTAINER_ID;
+        container.style.position = 'fixed';
+        container.style.top = '0';
+        container.style.left = '0';
+        container.style.width = '100%';
+        container.style.height = '100%';
+        container.style.zIndex = '99999';
+        container.style.pointerEvents = 'none';
+        document.body.appendChild(container);
+        root = (0, client_1.createRoot)(container);
+    }
+    root === null || root === void 0 ? void 0 : root.render(react_1.default.createElement(Analyzer_1.default, null));
+}
+function unmountComponent() {
+    if (root) {
+        root.unmount();
+    }
+    if (container) {
+        container.remove();
+        container = null;
+    }
+    root = null;
+}
+function injectAnalyzer() {
+    mountComponent();
+    console.log('LeetCode Time Analyzer injected successfully');
+}
+function waitForEditor() {
+    console.log('Waiting for Monaco editor...');
+    // Check immediately
+    if (document.querySelector(LEETCODE_EDITOR_SELECTOR)) {
+        console.log('Monaco editor found immediately');
+        injectAnalyzer();
+        return;
+    }
+    // Set up mutation observer to watch for editor
+    const observer = new MutationObserver((mutations, obs) => {
+        const editor = document.querySelector(LEETCODE_EDITOR_SELECTOR);
+        if (editor) {
+            console.log('Monaco editor found via observer');
+            obs.disconnect();
+            // Wait a brief moment for the editor to fully initialize
+            setTimeout(injectAnalyzer, 500);
+        }
+    });
+    observer.observe(document.body, {
+        childList: true,
+        subtree: true,
+    });
+}
+// Listen for changes to the enabled state
+chrome.storage.sync.onChanged.addListener((changes) => {
+    if (changes.enabled) {
+        if (changes.enabled.newValue) {
+            // Start watching for editor as soon as possible
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', waitForEditor);
+            }
+            else {
+                waitForEditor();
+            }
+        }
+        else {
+            unmountComponent();
+        }
+    }
+});
+// Check initial state
+chrome.storage.sync.get(['enabled'], function (result) {
+    const enabled = result.enabled !== false; // Default to true if not set
+    if (enabled) {
+        // Start watching for editor as soon as possible
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', waitForEditor);
+        }
+        else {
+            waitForEditor();
+        }
+    }
+});
+// Keep connection with background script
+let port = chrome.runtime.connect({ name: 'keepAlive' });
+port.onDisconnect.addListener(() => {
+    console.log('Reconnecting to service worker...');
+    port = chrome.runtime.connect({ name: 'keepAlive' });
+});
+
+
+/***/ }),
+
 /***/ 601:
 /***/ ((module) => {
 
@@ -2056,95 +2428,6 @@ function domAPI(options) {
   };
 }
 module.exports = domAPI;
-
-/***/ }),
-
-/***/ 837:
-/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
-
-"use strict";
-
-var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    var desc = Object.getOwnPropertyDescriptor(m, k);
-    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
-      desc = { enumerable: true, get: function() { return m[k]; } };
-    }
-    Object.defineProperty(o, k2, desc);
-}) : (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    o[k2] = m[k];
-}));
-var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
-    Object.defineProperty(o, "default", { enumerable: true, value: v });
-}) : function(o, v) {
-    o["default"] = v;
-});
-var __importStar = (this && this.__importStar) || (function () {
-    var ownKeys = function(o) {
-        ownKeys = Object.getOwnPropertyNames || function (o) {
-            var ar = [];
-            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
-            return ar;
-        };
-        return ownKeys(o);
-    };
-    return function (mod) {
-        if (mod && mod.__esModule) return mod;
-        var result = {};
-        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
-        __setModuleDefault(result, mod);
-        return result;
-    };
-})();
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-const react_1 = __importStar(__webpack_require__(540));
-const react_draggable_1 = __importDefault(__webpack_require__(794));
-const Analyzer_module_css_1 = __importDefault(__webpack_require__(608));
-const Analyzer = () => {
-    const [isCollapsed, setIsCollapsed] = (0, react_1.useState)(false);
-    const [position, setPosition] = (0, react_1.useState)({ x: 0, y: 0 });
-    (0, react_1.useEffect)(() => {
-        // Set initial position to right side of window
-        const setInitialPosition = () => {
-            const width = isCollapsed ? 50 : 320;
-            setPosition({
-                x: Math.max(0, window.innerWidth - width - 20),
-                y: 100
-            });
-        };
-        setInitialPosition();
-        window.addEventListener('resize', setInitialPosition);
-        return () => window.removeEventListener('resize', setInitialPosition);
-    }, [isCollapsed]);
-    const handleDrag = (_e, data) => {
-        setPosition({ x: data.x, y: data.y });
-    };
-    const toggleCollapse = () => {
-        const newCollapsed = !isCollapsed;
-        setIsCollapsed(newCollapsed);
-        // When expanding, move left by 260px (300px - 40px)
-        // When collapsing, move right by 260px
-        setPosition(pos => ({
-            x: pos.x + (newCollapsed ? 260 : -260),
-            y: pos.y
-        }));
-    };
-    return (react_1.default.createElement("div", { className: Analyzer_module_css_1.default.wrapper },
-        react_1.default.createElement(react_draggable_1.default, { handle: `.${Analyzer_module_css_1.default.handle}`, position: position, onDrag: handleDrag, bounds: "parent" },
-            react_1.default.createElement("div", { className: `${Analyzer_module_css_1.default.container} ${isCollapsed ? Analyzer_module_css_1.default.collapsed : Analyzer_module_css_1.default.expanded}` },
-                react_1.default.createElement("div", { className: Analyzer_module_css_1.default.mainContent },
-                    react_1.default.createElement("div", { className: `${Analyzer_module_css_1.default.handle} ${isCollapsed ? Analyzer_module_css_1.default.collapsed : ''}` }, "\uD83D\uDD52 Time Analyzer"),
-                    react_1.default.createElement("div", { className: `${Analyzer_module_css_1.default.content} ${isCollapsed ? Analyzer_module_css_1.default.collapsed : ''}` },
-                        react_1.default.createElement("p", null, "Analyzing time complexity..."),
-                        react_1.default.createElement("p", { className: Analyzer_module_css_1.default.hint }, "Drag from the header to move"))),
-                react_1.default.createElement("button", { className: `${Analyzer_module_css_1.default.collapseButton} ${isCollapsed ? '' : Analyzer_module_css_1.default.expanded}`, onClick: toggleCollapse, title: isCollapsed ? "Expand" : "Collapse" }, isCollapsed ? '⟩' : '⟨')))));
-};
-exports["default"] = Analyzer;
-
 
 /***/ }),
 
@@ -2734,7 +3017,7 @@ if (true) {
 /******/ 	// startup
 /******/ 	// Load entry module and return exports
 /******/ 	// This entry module is referenced by other modules so it can't be inlined
-/******/ 	var __webpack_exports__ = __webpack_require__(315);
+/******/ 	var __webpack_exports__ = __webpack_require__(560);
 /******/ 	
 /******/ })()
 ;

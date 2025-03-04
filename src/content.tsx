@@ -5,29 +5,39 @@ import Analyzer from './components/Analyzer';
 const LEETCODE_EDITOR_SELECTOR = '.monaco-editor';
 const CONTAINER_ID = 'leetcode-time-analyzer-root';
 
-function injectAnalyzer() {
-  // Remove any existing container
-  const existingContainer = document.getElementById(CONTAINER_ID);
-  if (existingContainer) {
-    existingContainer.remove();
+let container: HTMLDivElement | null = null;
+let root: ReturnType<typeof createRoot> | null = null;
+
+function mountComponent() {
+  if (!container) {
+    container = document.createElement('div');
+    container.id = CONTAINER_ID;
+    container.style.position = 'fixed';
+    container.style.top = '0';
+    container.style.left = '0';
+    container.style.width = '100%';
+    container.style.height = '100%';
+    container.style.zIndex = '99999';
+    container.style.pointerEvents = 'none';
+    document.body.appendChild(container);
+    root = createRoot(container);
   }
+  root?.render(<Analyzer />);
+}
 
-  // Create new container
-  const container = document.createElement('div');
-  container.id = CONTAINER_ID;
-  container.style.position = 'fixed';
-  container.style.top = '0';
-  container.style.left = '0';
-  container.style.width = '100%';
-  container.style.height = '100%';
-  container.style.zIndex = '99999';
-  container.style.pointerEvents = 'none';
-  document.body.appendChild(container);
+function unmountComponent() {
+  if (root) {
+    root.unmount();
+  }
+  if (container) {
+    container.remove();
+    container = null;
+  }
+  root = null;
+}
 
-  // Create React root and render component
-  const root = createRoot(container);
-  root.render(<Analyzer />);
-  
+function injectAnalyzer() {
+  mountComponent();
   console.log('LeetCode Time Analyzer injected successfully');
 }
 
@@ -59,12 +69,34 @@ function waitForEditor() {
   });
 }
 
-// Start watching for editor as soon as possible
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', waitForEditor);
-} else {
-  waitForEditor();
-}
+// Listen for changes to the enabled state
+chrome.storage.sync.onChanged.addListener((changes) => {
+  if (changes.enabled) {
+    if (changes.enabled.newValue) {
+      // Start watching for editor as soon as possible
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', waitForEditor);
+      } else {
+        waitForEditor();
+      }
+    } else {
+      unmountComponent();
+    }
+  }
+});
+
+// Check initial state
+chrome.storage.sync.get(['enabled'], function(result) {
+  const enabled = result.enabled !== false; // Default to true if not set
+  if (enabled) {
+    // Start watching for editor as soon as possible
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', waitForEditor);
+    } else {
+      waitForEditor();
+    }
+  }
+});
 
 // Keep connection with background script
 let port = chrome.runtime.connect({ name: 'keepAlive' });

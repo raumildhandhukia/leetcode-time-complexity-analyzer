@@ -5,6 +5,7 @@ module.exports = {
   mode: 'production',
   entry: {
     content: './src/content.tsx',
+    popup: './src/popup/popup.js',
     background: './src/background.ts'
   },
   output: {
@@ -16,7 +17,16 @@ module.exports = {
     rules: [
       {
         test: /\.tsx?$/,
-        use: 'ts-loader',
+        use: [
+          {
+            loader: 'ts-loader',
+            options: {
+              compilerOptions: {
+                noEmit: false,
+              },
+            },
+          },
+        ],
         exclude: /node_modules/,
       },
       {
@@ -42,6 +52,8 @@ module.exports = {
     new CopyPlugin({
       patterns: [
         { from: "src/manifest.json", to: "manifest.json" },
+        { from: "src/icons", to: "icons" },
+        { from: "src/popup/popup.html", to: "popup.html" }
       ],
     }),
   ],
