@@ -1,8 +1,35 @@
 {
   "manifest_version": 3,
   "name": "AlgoMeter AI: Big O Insights for LeetCode",
-  "description": "Get the Big O notation of your LeetCode code. Time and space complexity analysis using AI.",
   "version": "1.0.0",
+  "description": "Get the Big O notation of your LeetCode code. Time and space complexity analysis using AI.",
+  "permissions": [
+    "storage",
+    "activeTab",
+    "tabs",
+    "scripting"
+  ],
+  "host_permissions": [
+    "https://leetcode.com/*"
+  ],
+  "background": {
+    "service_worker": "background.js",
+    "type": "module"
+  },
+  "content_scripts": [
+    {
+      "matches": ["https://leetcode.com/*"],
+      "js": ["content.js"],
+      "run_at": "document_end"
+    }
+  ],
+  "web_accessible_resources": [{
+    "resources": ["icons/*"],
+    "matches": ["https://leetcode.com/*"]
+  }],
+  "content_security_policy": {
+    "extension_pages": "script-src 'self'; object-src 'self'"
+  },
   "icons": {
     "16": "icons/icon16.png",
     "32": "icons/icon32.png",
@@ -17,17 +44,5 @@
       "48": "icons/icon48.png",
       "128": "icons/icon128.png"
     }
-  },
-  "permissions": [
-    "storage"
-  ],
-  "host_permissions": [
-    "https://leetcode.com/*"
-  ],
-  "content_scripts": [
-    {
-      "matches": ["https://leetcode.com/*"],
-      "js": ["content.js"]
-    }
-  ]
+  }
 }

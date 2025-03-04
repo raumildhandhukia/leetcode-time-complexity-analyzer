@@ -2,17 +2,12 @@ const path = require('path');
 const CopyPlugin = require('copy-webpack-plugin');
 
 module.exports = {
-  mode: 'production',
   entry: {
     content: './src/content.tsx',
-    popup: './src/popup/popup.js',
+    popup: './src/popup/index.tsx',
     background: './src/background.ts'
   },
-  output: {
-    path: path.resolve(__dirname, 'dist'),
-    filename: '[name].js',
-    clean: true
-  },
+  mode: 'production',
   module: {
     rules: [
       {
@@ -31,29 +26,29 @@ module.exports = {
       },
       {
         test: /\.css$/,
-        use: [
-          'style-loader',
-          {
-            loader: 'css-loader',
-            options: {
-              modules: {
-                localIdentName: '[name]__[local]___[hash:base64:5]'
-              },
-            }
-          }
-        ],
+        use: ['style-loader', 'css-loader'],
       },
+      {
+        test: /\.(png|jpg|jpeg|gif|svg)$/i,
+        type: 'asset/resource'
+      }
     ],
   },
   resolve: {
     extensions: ['.tsx', '.ts', '.js', '.css'],
   },
+  output: {
+    filename: '[name].js',
+    path: path.resolve(__dirname, 'dist'),
+    clean: true,
+    assetModuleFilename: 'assets/[name][ext]'
+  },
   plugins: [
     new CopyPlugin({
       patterns: [
-        { from: "src/manifest.json", to: "manifest.json" },
         { from: "src/icons", to: "icons" },
-        { from: "src/popup/popup.html", to: "popup.html" }
+        { from: "src/popup/popup.html", to: "popup.html" },
+        { from: "src/manifest.json", to: "manifest.json" }
       ],
     }),
   ],

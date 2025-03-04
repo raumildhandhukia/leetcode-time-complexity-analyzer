@@ -20,11 +20,31 @@ const Analyzer: React.FC = () => {
 
   useEffect(() => {
     const setInitialPosition = () => {
-      const width = isCollapsed ? 50 : 320;
-      setPosition({
-        x: Math.max(0, window.innerWidth - width - 20),
-        y: 100
-      });
+      const width = isCollapsed ? 120 : 320;
+      let editor = document.querySelector('.monaco-editor');
+      
+      if (!editor) {
+        const iframes = document.querySelectorAll('iframe');
+        for (const iframe of iframes) {
+          try {
+            const iframeEditor = iframe.contentDocument?.querySelector('.monaco-editor');
+            if (iframeEditor) {
+              editor = iframeEditor;
+              break;
+            }
+          } catch (e) {
+            console.log('Cannot access iframe content due to same-origin policy');
+          }
+        }
+      }
+
+      if (editor) {
+        const editorRect = editor.getBoundingClientRect();
+        setPosition({
+          x: window.innerWidth - width,
+          y: editorRect.top
+        });
+      }
     };
 
     setInitialPosition();
@@ -38,9 +58,10 @@ const Analyzer: React.FC = () => {
 
   const toggleCollapse = () => {
     const newCollapsed = !isCollapsed;
+    const newWidth = newCollapsed ? 120 : 320;
     setIsCollapsed(newCollapsed);
     setPosition(pos => ({
-      x: pos.x + (newCollapsed ? 260 : -260),
+      x: window.innerWidth - newWidth - 20,
       y: pos.y
     }));
   };
@@ -147,7 +168,11 @@ const Analyzer: React.FC = () => {
         <div className={`${styles.container} ${isCollapsed ? styles.collapsed : styles.expanded}`}>
           <div className={styles.mainContent}>
             <div className={`${styles.handle}`}>
-              <div className={styles.dragHandle}>⠿</div>
+              <img 
+                src={chrome.runtime.getURL('icons/icon48.png')}
+                alt="Analysis" 
+                className={styles.collapsedIcon}
+              />
               {!isCollapsed && (
                 <button 
                   className={styles.analyzeButton} 

@@ -25,12 +25,12 @@
 }
 
 .container.collapsed {
-  width: 60px;
+  width: 90px;
 }
 
 .container.collapsed .handle {
   padding: 8px;
-  gap: 4px;
+  gap: 8px;
   justify-content: space-between;
 }
 
@@ -39,7 +39,14 @@
 }
 
 .container.collapsed .collapseButton {
-  padding: 4px 8px;
+  padding: 4px;
+  font-size: 20px;
+  width: 36px;
+  height: 36px;
+}
+
+.container.collapsed .analyzeButton {
+  padding: 4px;
   font-size: 14px;
 }
 
@@ -89,6 +96,7 @@
   background-color: rgb(45, 181, 93);
   color: rgb(255, 255, 255);
   padding: 8px 16px;
+  height: 32px;
   border: none;
   border-radius: 5px;
   cursor: pointer;
@@ -125,16 +133,36 @@
   border: none;
   color: rgb(150, 150, 150);
   cursor: pointer;
-  padding: 4px 8px;
-  font-size: 14px;
+  padding: 4px;
+  min-width: 32px;
+  font-size: 18px;
   display: flex;
   align-items: center;
   justify-content: center;
   transition: color 0.2s;
+  height: 32px;
+  flex-shrink: 0;
 }
 
 .collapseButton:hover {
   color: rgb(200, 200, 200);
+}
+
+.collapsedIcon {
+  width: 32px;
+  height: 32px;
+  object-fit: contain;
+  pointer-events: none;
+  user-select: none;
+  -webkit-user-drag: none;
+}
+
+.container.collapsed .collapsedIcon {
+  margin: 0;
+}
+
+.container.expanded .collapsedIcon {
+  margin-right: 0;
 }
 
 .results {
@@ -142,21 +170,29 @@
   border-radius: 6px;
   border: 1px solid rgb(61, 61, 61);
   padding: 12px;
-  margin-top: 0;
 }
 
 .complexity {
-  margin-bottom: 8px;
-  font-size: 13px;
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 12px;
+  background: rgba(78, 201, 176, 0.1);
+  padding: 8px 12px;
+  border-radius: 6px;
+  border: 1px solid rgba(78, 201, 176, 0.2);
+  margin-bottom: 8px;
 }
 
 .complexity strong {
-  color: rgb(255, 161, 22);
-  font-weight: 500;
-  min-width: 45px;
+  color: #c9c9c9;
+  min-width: 60px;
+  font-size: 14px;
+}
+
+.complexity span {
+  font-family: monospace;
+  color: #4ec9b0;
+  font-size: 15px;
 }
 
 .explanationToggle {
