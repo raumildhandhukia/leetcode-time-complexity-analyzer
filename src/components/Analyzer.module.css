@@ -1,0 +1,96 @@
+.wrapper {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 99999;
+}
+
+.container {
+  position: fixed;
+  z-index: 99999;
+  background-color: #1a1a1a;
+  color: #ffffff;
+  border: 2px solid #4a4a4a;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+  min-height: 100px;
+  max-height: 400px;
+  transition: all 0.3s ease;
+  display: flex;
+  overflow: hidden;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+  pointer-events: auto;
+}
+
+.container.expanded {
+  width: 300px;
+}
+
+.container.collapsed {
+  width: 40px;
+}
+
+.content {
+  flex: 1;
+  padding: 16px;
+  background-color: #1a1a1a;
+}
+
+.content.collapsed {
+  display: none;
+}
+
+.collapseButton {
+  width: 40px;
+  background-color: #333;
+  border: none;
+  cursor: pointer;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  font-size: 18px;
+  transition: background-color 0.2s;
+  outline: none;
+}
+
+.collapseButton:hover {
+  background-color: #444;
+}
+
+.collapseButton.expanded {
+  border-left: 1px solid #444;
+}
+
+.handle {
+  background-color: #2a2a2a;
+  padding: 12px 16px;
+  cursor: move;
+  border-bottom: 1px solid #444;
+  font-size: 14px;
+  font-weight: bold;
+  user-select: none;
+  display: flex;
+  align-items: center;
+  color: #00ff00;
+}
+
+.handle.collapsed {
+  display: none;
+}
+
+.mainContent {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.hint {
+  font-size: 12px;
+  color: #888;
+  margin-top: 8px;
+}
