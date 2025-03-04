@@ -1,4 +1,4 @@
-# LeetCode Time Analyzer Chrome Extension
+# LeetCode Time Complexity Analyzer Chrome Extension
 
 A Chrome extension that adds a draggable and collapsible time complexity analyzer to LeetCode's coding interface.
 
