@@ -193,7 +193,7 @@ const Analyzer: React.FC = () => {
                 onClick={toggleCollapse}
                 aria-label={isCollapsed ? 'Expand' : 'Collapse'}
               >
-                {isCollapsed ? '▶' : '◀'}
+                {isCollapsed ? '◀' : '▶'}
               </button>
             </div>
 

@@ -991,7 +991,7 @@ const Analyzer = () => {
                     react_1.default.createElement("div", { className: `${Analyzer_module_css_1.default.handle}` },
                         react_1.default.createElement("img", { src: chrome.runtime.getURL('icons/icon48.png'), alt: "Analysis", className: Analyzer_module_css_1.default.collapsedIcon }),
                         !isCollapsed && (react_1.default.createElement("button", { className: Analyzer_module_css_1.default.analyzeButton, onClick: analyzeCode, disabled: isLoading || countdown !== null }, isLoading ? (react_1.default.createElement("div", { className: Analyzer_module_css_1.default.loader })) : countdown ? (`Wait ${countdown}s`) : ('Analyze Complexity'))),
-                        react_1.default.createElement("button", { className: Analyzer_module_css_1.default.collapseButton, onClick: toggleCollapse, "aria-label": isCollapsed ? 'Expand' : 'Collapse' }, isCollapsed ? '▶' : '◀')),
+                        react_1.default.createElement("button", { className: Analyzer_module_css_1.default.collapseButton, onClick: toggleCollapse, "aria-label": isCollapsed ? 'Expand' : 'Collapse' }, isCollapsed ? '◀' : '▶')),
                     !isCollapsed && (react_1.default.createElement("div", { className: Analyzer_module_css_1.default.content },
                         error && (react_1.default.createElement("div", { className: Analyzer_module_css_1.default.error }, error)),
                         analysisResult && (react_1.default.createElement("div", { className: Analyzer_module_css_1.default.results },
