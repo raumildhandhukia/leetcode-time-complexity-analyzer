@@ -853,8 +853,11 @@ const Analyzer = () => {
     const [isCollapsed, setIsCollapsed] = (0, react_1.useState)(false);
     const [position, setPosition] = (0, react_1.useState)({ x: 0, y: 0 });
     const [isLoading, setIsLoading] = (0, react_1.useState)(false);
+    const [isLoadingTags, setIsLoadingTags] = (0, react_1.useState)(false);
     const [analysisResult, setAnalysisResult] = (0, react_1.useState)(null);
+    const [companyTagsResult, setCompanyTagsResult] = (0, react_1.useState)(null);
     const [showExplanation, setShowExplanation] = (0, react_1.useState)(false);
+    const [showCompanyTags, setShowCompanyTags] = (0, react_1.useState)(false);
     const [countdown, setCountdown] = (0, react_1.useState)(null);
     const [error, setError] = (0, react_1.useState)(null);
     (0, react_1.useEffect)(() => {
@@ -984,13 +987,50 @@ const Analyzer = () => {
             setIsLoading(false);
         }
     });
+    const getCompanyTags = () => __awaiter(void 0, void 0, void 0, function* () {
+        setIsLoadingTags(true);
+        setError(null);
+        setCompanyTagsResult(null);
+        try {
+            // Get the current URL and encode it
+            const currentUrl = encodeURIComponent(window.location.href);
+            // Make the API call with the encoded URL as a GET parameter
+            const res = yield fetch(`http://localhost:8000/api/company-tags?url=${currentUrl}`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            });
+            if (!res.ok) {
+                throw new Error(`HTTP error! status: ${res.status}`);
+            }
+            const data = yield res.json();
+            setCompanyTagsResult({
+                three_months: data.three_months || [],
+                six_months: data.six_months || [],
+                more_than_six_months: data.more_than_six_months || []
+            });
+            setShowCompanyTags(true);
+        }
+        catch (err) {
+            setError('Failed to fetch company tags. Please try again.');
+            setCompanyTagsResult({
+                error: 'Failed to fetch company tags'
+            });
+        }
+        finally {
+            setIsLoadingTags(false);
+        }
+    });
     return (react_1.default.createElement("div", { className: Analyzer_module_css_1.default.wrapper },
         react_1.default.createElement(react_draggable_1.default, { handle: `.${Analyzer_module_css_1.default.handle}`, position: position, onDrag: handleDrag, bounds: "parent" },
             react_1.default.createElement("div", { className: `${Analyzer_module_css_1.default.container} ${isCollapsed ? Analyzer_module_css_1.default.collapsed : Analyzer_module_css_1.default.expanded}` },
                 react_1.default.createElement("div", { className: Analyzer_module_css_1.default.mainContent },
                     react_1.default.createElement("div", { className: `${Analyzer_module_css_1.default.handle}` },
                         react_1.default.createElement("img", { src: chrome.runtime.getURL('icons/icon48.png'), alt: "Analysis", className: Analyzer_module_css_1.default.collapsedIcon }),
-                        !isCollapsed && (react_1.default.createElement("button", { className: Analyzer_module_css_1.default.analyzeButton, onClick: analyzeCode, disabled: isLoading || countdown !== null }, isLoading ? (react_1.default.createElement("div", { className: Analyzer_module_css_1.default.loader })) : countdown ? (`Wait ${countdown}s`) : ('Analyze Complexity'))),
+                        !isCollapsed && (react_1.default.createElement("div", { className: Analyzer_module_css_1.default.buttonGroup },
+                            react_1.default.createElement("button", { className: Analyzer_module_css_1.default.analyzeButton, onClick: analyzeCode, disabled: isLoading || countdown !== null }, isLoading ? (react_1.default.createElement("div", { className: Analyzer_module_css_1.default.loader })) : countdown ? (`Wait ${countdown}s`) : ('Analyze Complexity')),
+                            react_1.default.createElement("button", { className: Analyzer_module_css_1.default.companyTagsButton, onClick: getCompanyTags, disabled: isLoadingTags }, isLoadingTags ? (react_1.default.createElement("div", { className: Analyzer_module_css_1.default.loader })) : ('Company Tags')))),
                         react_1.default.createElement("button", { className: Analyzer_module_css_1.default.collapseButton, onClick: toggleCollapse, "aria-label": isCollapsed ? 'Expand' : 'Collapse' }, isCollapsed ? '◀' : '▶')),
                     !isCollapsed && (react_1.default.createElement("div", { className: Analyzer_module_css_1.default.content },
                         error && (react_1.default.createElement("div", { className: Analyzer_module_css_1.default.error }, error)),
@@ -1005,7 +1045,28 @@ const Analyzer = () => {
                                 react_1.default.createElement("button", { className: Analyzer_module_css_1.default.explanationToggle, onClick: () => setShowExplanation(!showExplanation) },
                                     showExplanation ? '▼ Hide' : '▶ Show',
                                     " Explanation"),
-                                showExplanation && (react_1.default.createElement("div", { className: Analyzer_module_css_1.default.explanation }, analysisResult.explanation)))))))))))));
+                                showExplanation && (react_1.default.createElement("div", { className: Analyzer_module_css_1.default.explanation }, analysisResult.explanation)))))),
+                        companyTagsResult && (react_1.default.createElement("div", { className: Analyzer_module_css_1.default.results },
+                            react_1.default.createElement("button", { className: Analyzer_module_css_1.default.explanationToggle, onClick: () => setShowCompanyTags(!showCompanyTags) },
+                                showCompanyTags ? '▼ Hide' : '▶ Show',
+                                " Company Tags"),
+                            showCompanyTags && (react_1.default.createElement("div", { className: Analyzer_module_css_1.default.companyTags }, companyTagsResult.error ? (react_1.default.createElement("div", { className: Analyzer_module_css_1.default.error }, companyTagsResult.error)) : (react_1.default.createElement("div", { className: Analyzer_module_css_1.default.tagsContainer }, hasCompanyTags(companyTagsResult) ? (react_1.default.createElement(react_1.default.Fragment, null,
+                                companyTagsResult.three_months && companyTagsResult.three_months.length > 0 && (react_1.default.createElement(TagsSection, { title: "Last 3 Months", tags: companyTagsResult.three_months })),
+                                companyTagsResult.six_months && companyTagsResult.six_months.length > 0 && (react_1.default.createElement(TagsSection, { title: "Last 6 Months", tags: companyTagsResult.six_months })),
+                                companyTagsResult.more_than_six_months && companyTagsResult.more_than_six_months.length > 0 && (react_1.default.createElement(TagsSection, { title: "More than 6 Months", tags: companyTagsResult.more_than_six_months })))) : (react_1.default.createElement("div", { className: Analyzer_module_css_1.default.noTags }, "No company tags found for this problem.")))))))))))))));
+};
+// Helper function to check if there are any company tags
+const hasCompanyTags = (data) => {
+    return ((data.three_months !== undefined && data.three_months.length > 0) ||
+        (data.six_months !== undefined && data.six_months.length > 0) ||
+        (data.more_than_six_months !== undefined && data.more_than_six_months.length > 0));
+};
+const TagsSection = ({ title, tags }) => {
+    return (react_1.default.createElement("div", { className: Analyzer_module_css_1.default.tagsSection },
+        react_1.default.createElement("h3", { className: Analyzer_module_css_1.default.tagsSectionTitle }, title),
+        react_1.default.createElement("div", { className: Analyzer_module_css_1.default.tagsList }, tags.map((tag, index) => (react_1.default.createElement("div", { key: tag.slug, className: Analyzer_module_css_1.default.tag },
+            react_1.default.createElement("span", { className: Analyzer_module_css_1.default.tagName }, tag.name),
+            react_1.default.createElement("span", { className: Analyzer_module_css_1.default.tagCount }, tag.timesEncountered)))))));
 };
 exports["default"] = Analyzer;
 
@@ -2220,6 +2281,12 @@ ___CSS_LOADER_EXPORT___.push([module.id, `.Kmrlhjh_mXvNmlm_6BSZ {
   opacity: 0;
 }
 
+.L1Kpkg73cjHD3XWYqJdx {
+  display: flex;
+  gap: 8px;
+  flex: 1;
+}
+
 .PU46osVfrhbXLMW0gTVp {
   flex: 1;
   background-color: rgb(45, 181, 93);
@@ -2241,7 +2308,45 @@ ___CSS_LOADER_EXPORT___.push([module.id, `.Kmrlhjh_mXvNmlm_6BSZ {
   width: auto;
 }
 
-.rBHA1Hh_i5JEuFj35d8D.GLyhtXGNIW5PBP15FhDY .PU46osVfrhbXLMW0gTVp {
+.EPZXWK7tWZZ0YIfyUKXz {
+  flex: 1;
+  background-color: rgb(86, 113, 249);
+  color: rgb(255, 255, 255);
+  padding: 8px 16px;
+  height: 32px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 1;
+  transition: all 0.3s ease;
+  white-space: nowrap;
+  overflow: hidden;
+  width: auto;
+}
+
+.EPZXWK7tWZZ0YIfyUKXz:hover:not(:disabled) {
+  background-color: rgb(72, 95, 224);
+}
+
+.EPZXWK7tWZZ0YIfyUKXz:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.rBHA1Hh_i5JEuFj35d8D.GLyhtXGNIW5PBP15FhDY .L1Kpkg73cjHD3XWYqJdx {
+  width: 0;
+  opacity: 0;
+  padding: 0;
+  margin: 0;
+}
+
+.rBHA1Hh_i5JEuFj35d8D.GLyhtXGNIW5PBP15FhDY .PU46osVfrhbXLMW0gTVp,
+.rBHA1Hh_i5JEuFj35d8D.GLyhtXGNIW5PBP15FhDY .EPZXWK7tWZZ0YIfyUKXz {
   width: 0;
   opacity: 0;
   padding: 0;
@@ -2351,7 +2456,78 @@ ___CSS_LOADER_EXPORT___.push([module.id, `.Kmrlhjh_mXvNmlm_6BSZ {
   max-height: 250px;
   overflow-y: auto;
   color: rgb(200, 200, 200);
-  border: 1px solid rgb(61, 61, 61);
+}
+
+.U9LFvKzq6UyNcyQ6hxFw {
+  margin-top: 8px;
+  padding: 8px;
+  background-color: rgb(38, 38, 38);
+  border-radius: 5px;
+  font-size: 12px;
+  line-height: 1.5;
+  max-height: 350px;
+  overflow-y: auto;
+  color: rgb(200, 200, 200);
+}
+
+.heJtbBcdwGbbDkMVEeah {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.SMFkRoRjFvTqqB4W66F0 {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.jWFmQ5VgjQi2UmwGhmjM {
+  font-size: 14px;
+  font-weight: 600;
+  color: #e0e0e0;
+  margin: 0;
+  padding-bottom: 4px;
+  border-bottom: 1px solid rgba(86, 113, 249, 0.3);
+}
+
+.XZdGMoLdxqYYVJTtBii0 {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.lwEmYA6y7fY8WmROlo0Y {
+  background-color: rgba(86, 113, 249, 0.2);
+  border: 1px solid rgba(86, 113, 249, 0.3);
+  border-radius: 4px;
+  padding: 4px 8px;
+  font-size: 13px;
+  color: #c9c9c9;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.cwEB18Cl1LZ1bVOEzo_q {
+  color: #e0e0e0;
+}
+
+.nWLQa5fYDQ7PqCoSRlJQ {
+  background-color: rgba(86, 113, 249, 0.4);
+  border-radius: 10px;
+  padding: 1px 6px;
+  font-size: 11px;
+  color: #ffffff;
+  min-width: 18px;
+  text-align: center;
+}
+
+.IwFHA_KZjT15LsOj8QjO {
+  text-align: center;
+  padding: 12px;
+  color: #a0a0a0;
+  font-style: italic;
 }
 
 ._nUtpyLFzvvQ7AMUT4D4::-webkit-scrollbar {
@@ -2407,11 +2583,22 @@ ___CSS_LOADER_EXPORT___.locals = {
 	"analyzeButton": `PU46osVfrhbXLMW0gTVp`,
 	"mainContent": `lzdvVvGOJvPohANDQLRW`,
 	"content": `MEBXn6g2XENwu4SuUX_R`,
+	"buttonGroup": `L1Kpkg73cjHD3XWYqJdx`,
+	"companyTagsButton": `EPZXWK7tWZZ0YIfyUKXz`,
 	"collapsedIcon": `iITg6UU7TReFUm4zalwA`,
 	"results": `O2ojIl3NuhEwjli6W5QF`,
 	"complexity": `eH7ro01Q4RKDvXQyok_E`,
 	"explanationToggle": `mtTRP0GeK_15QIHvWduL`,
 	"explanation": `_nUtpyLFzvvQ7AMUT4D4`,
+	"companyTags": `U9LFvKzq6UyNcyQ6hxFw`,
+	"tagsContainer": `heJtbBcdwGbbDkMVEeah`,
+	"tagsSection": `SMFkRoRjFvTqqB4W66F0`,
+	"tagsSectionTitle": `jWFmQ5VgjQi2UmwGhmjM`,
+	"tagsList": `XZdGMoLdxqYYVJTtBii0`,
+	"tag": `lwEmYA6y7fY8WmROlo0Y`,
+	"tagName": `cwEB18Cl1LZ1bVOEzo_q`,
+	"tagCount": `nWLQa5fYDQ7PqCoSRlJQ`,
+	"noTags": `IwFHA_KZjT15LsOj8QjO`,
 	"error": `wekHwpEy1usiqGRtdJbf`,
 	"loader": `FT2RCVitNiSyoAv8WRa_`,
 	"spin": `nB_QWPsHd5dwSh_ytVas`

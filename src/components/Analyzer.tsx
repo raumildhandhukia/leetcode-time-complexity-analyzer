@@ -9,12 +9,41 @@ interface AnalysisResult {
   secondsLeft?: number;
 }
 
+interface CompanyTag {
+  timesEncountered: number;
+  slug: string;
+  name: string;
+}
+
+interface CompanyTagsResult {
+  three_months?: CompanyTag[];
+  six_months?: CompanyTag[];
+  more_than_six_months?: CompanyTag[];
+  error?: string;
+}
+
+interface CompanyTag {
+  timesEncountered: number;
+  slug: string;
+  name: string;
+}
+
+interface CompanyTagsResult {
+  three_months?: CompanyTag[];
+  six_months?: CompanyTag[];
+  more_than_six_months?: CompanyTag[];
+  error?: string;
+}
+
 const Analyzer: React.FC = () => {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [position, setPosition] = useState({ x: 0, y: 0 });
   const [isLoading, setIsLoading] = useState(false);
+  const [isLoadingTags, setIsLoadingTags] = useState(false);
   const [analysisResult, setAnalysisResult] = useState<AnalysisResult | null>(null);
+  const [companyTagsResult, setCompanyTagsResult] = useState<CompanyTagsResult | null>(null);
   const [showExplanation, setShowExplanation] = useState(false);
+  const [showCompanyTags, setShowCompanyTags] = useState(false);
   const [countdown, setCountdown] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -157,6 +186,44 @@ const Analyzer: React.FC = () => {
     }
   };
 
+  const getCompanyTags = async () => {
+    setIsLoadingTags(true);
+    setError(null);
+    setCompanyTagsResult(null);
+
+    try {
+      // Get the current URL and encode it
+      const currentUrl = encodeURIComponent(window.location.href);
+      
+      // Make the API call with the encoded URL as a GET parameter
+      const res = await fetch(`http://localhost:8000/api/company-tags?url=${currentUrl}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        }
+      });
+
+      if (!res.ok) {
+        throw new Error(`HTTP error! status: ${res.status}`);
+      }
+
+      const data = await res.json();
+      setCompanyTagsResult({
+        three_months: data.three_months || [],
+        six_months: data.six_months || [],
+        more_than_six_months: data.more_than_six_months || []
+      });
+      setShowCompanyTags(true);
+    } catch (err) {
+      setError('Failed to fetch company tags. Please try again.');
+      setCompanyTagsResult({
+        error: 'Failed to fetch company tags'
+      });
+    } finally {
+      setIsLoadingTags(false);
+    }
+  };
+
   return (
     <div className={styles.wrapper}>
       <Draggable
@@ -174,19 +241,32 @@ const Analyzer: React.FC = () => {
                 className={styles.collapsedIcon}
               />
               {!isCollapsed && (
-                <button 
-                  className={styles.analyzeButton} 
-                  onClick={analyzeCode}
-                  disabled={isLoading || countdown !== null}
-                >
-                  {isLoading ? (
-                    <div className={styles.loader} />
-                  ) : countdown ? (
-                    `Wait ${countdown}s`
-                  ) : (
-                    'Analyze Complexity'
-                  )}
-                </button>
+                <div className={styles.buttonGroup}>
+                  <button 
+                    className={styles.analyzeButton} 
+                    onClick={analyzeCode}
+                    disabled={isLoading || countdown !== null}
+                  >
+                    {isLoading ? (
+                      <div className={styles.loader} />
+                    ) : countdown ? (
+                      `Wait ${countdown}s`
+                    ) : (
+                      'Analyze Complexity'
+                    )}
+                  </button>
+                  <button 
+                    className={styles.companyTagsButton} 
+                    onClick={getCompanyTags}
+                    disabled={isLoadingTags}
+                  >
+                    {isLoadingTags ? (
+                      <div className={styles.loader} />
+                    ) : (
+                      'Company Tags'
+                    )}
+                  </button>
+                </div>
               )}
               <button
                 className={styles.collapseButton}
@@ -230,11 +310,87 @@ const Analyzer: React.FC = () => {
                     )}
                   </div>
                 )}
+                
+                {companyTagsResult && (
+                  <div className={styles.results}>
+                    <button 
+                      className={styles.explanationToggle}
+                      onClick={() => setShowCompanyTags(!showCompanyTags)}
+                    >
+                      {showCompanyTags ? '▼ Hide' : '▶ Show'} Company Tags
+                    </button>
+                    {showCompanyTags && (
+                      <div className={styles.companyTags}>
+                        {companyTagsResult.error ? (
+                          <div className={styles.error}>{companyTagsResult.error}</div>
+                        ) : (
+                          <div className={styles.tagsContainer}>
+                            {hasCompanyTags(companyTagsResult) ? (
+                              <>
+                                {companyTagsResult.three_months && companyTagsResult.three_months.length > 0 && (
+                                  <TagsSection 
+                                    title="Last 3 Months" 
+                                    tags={companyTagsResult.three_months} 
+                                  />
+                                )}
+                                {companyTagsResult.six_months && companyTagsResult.six_months.length > 0 && (
+                                  <TagsSection 
+                                    title="Last 6 Months" 
+                                    tags={companyTagsResult.six_months} 
+                                  />
+                                )}
+                                {companyTagsResult.more_than_six_months && companyTagsResult.more_than_six_months.length > 0 && (
+                                  <TagsSection 
+                                    title="More than 6 Months" 
+                                    tags={companyTagsResult.more_than_six_months} 
+                                  />
+                                )}
+                              </>
+                            ) : (
+                              <div className={styles.noTags}>No company tags found for this problem.</div>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
             )}
           </div>
         </div>
       </Draggable>
+    </div>
+  );
+};
+
+// Helper function to check if there are any company tags
+const hasCompanyTags = (data: CompanyTagsResult): boolean => {
+  return (
+    (data.three_months !== undefined && data.three_months.length > 0) ||
+    (data.six_months !== undefined && data.six_months.length > 0) ||
+    (data.more_than_six_months !== undefined && data.more_than_six_months.length > 0)
+  );
+};
+
+// Component to display a section of tags with a title
+interface TagsSectionProps {
+  title: string;
+  tags: CompanyTag[];
+}
+
+const TagsSection: React.FC<TagsSectionProps> = ({ title, tags }) => {
+  return (
+    <div className={styles.tagsSection}>
+      <h3 className={styles.tagsSectionTitle}>{title}</h3>
+      <div className={styles.tagsList}>
+        {tags.map((tag, index) => (
+          <div key={tag.slug} className={styles.tag}>
+            <span className={styles.tagName}>{tag.name}</span>
+            <span className={styles.tagCount}>{tag.timesEncountered}</span>
+          </div>
+        ))}
+      </div>
     </div>
   );
 };

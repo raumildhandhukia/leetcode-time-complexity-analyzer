@@ -91,6 +91,12 @@
   opacity: 0;
 }
 
+.buttonGroup {
+  display: flex;
+  gap: 8px;
+  flex: 1;
+}
+
 .analyzeButton {
   flex: 1;
   background-color: rgb(45, 181, 93);
@@ -112,7 +118,45 @@
   width: auto;
 }
 
-.container.collapsed .analyzeButton {
+.companyTagsButton {
+  flex: 1;
+  background-color: rgb(86, 113, 249);
+  color: rgb(255, 255, 255);
+  padding: 8px 16px;
+  height: 32px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 1;
+  transition: all 0.3s ease;
+  white-space: nowrap;
+  overflow: hidden;
+  width: auto;
+}
+
+.companyTagsButton:hover:not(:disabled) {
+  background-color: rgb(72, 95, 224);
+}
+
+.companyTagsButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.container.collapsed .buttonGroup {
+  width: 0;
+  opacity: 0;
+  padding: 0;
+  margin: 0;
+}
+
+.container.collapsed .analyzeButton,
+.container.collapsed .companyTagsButton {
   width: 0;
   opacity: 0;
   padding: 0;
@@ -222,7 +266,78 @@
   max-height: 250px;
   overflow-y: auto;
   color: rgb(200, 200, 200);
-  border: 1px solid rgb(61, 61, 61);
+}
+
+.companyTags {
+  margin-top: 8px;
+  padding: 8px;
+  background-color: rgb(38, 38, 38);
+  border-radius: 5px;
+  font-size: 12px;
+  line-height: 1.5;
+  max-height: 350px;
+  overflow-y: auto;
+  color: rgb(200, 200, 200);
+}
+
+.tagsContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.tagsSection {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.tagsSectionTitle {
+  font-size: 14px;
+  font-weight: 600;
+  color: #e0e0e0;
+  margin: 0;
+  padding-bottom: 4px;
+  border-bottom: 1px solid rgba(86, 113, 249, 0.3);
+}
+
+.tagsList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.tag {
+  background-color: rgba(86, 113, 249, 0.2);
+  border: 1px solid rgba(86, 113, 249, 0.3);
+  border-radius: 4px;
+  padding: 4px 8px;
+  font-size: 13px;
+  color: #c9c9c9;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.tagName {
+  color: #e0e0e0;
+}
+
+.tagCount {
+  background-color: rgba(86, 113, 249, 0.4);
+  border-radius: 10px;
+  padding: 1px 6px;
+  font-size: 11px;
+  color: #ffffff;
+  min-width: 18px;
+  text-align: center;
+}
+
+.noTags {
+  text-align: center;
+  padding: 12px;
+  color: #a0a0a0;
+  font-style: italic;
 }
 
 .explanation::-webkit-scrollbar {
