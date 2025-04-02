@@ -37,7 +37,7 @@ interface CompanyTagsResult {
 
 const Analyzer: React.FC = () => {
   const [isCollapsed, setIsCollapsed] = useState(false);
-  const [position, setPosition] = useState({ x: 0, y: 0 });
+  const [position, setPosition] = useState({ x: window.innerWidth - 400, y: 100 });
   const [isLoading, setIsLoading] = useState(false);
   const [isLoadingTags, setIsLoadingTags] = useState(false);
   const [analysisResult, setAnalysisResult] = useState<AnalysisResult | null>(null);
@@ -69,8 +69,12 @@ const Analyzer: React.FC = () => {
 
       if (editor) {
         const editorRect = editor.getBoundingClientRect();
+        // Ensure the component stays within window boundaries
+        const rightMargin = 40; // Margin from the right edge
+        const safeX = Math.min(window.innerWidth - width - rightMargin, window.innerWidth - width - rightMargin);
+        
         setPosition({
-          x: window.innerWidth - width,
+          x: safeX,
           y: editorRect.top
         });
       }
