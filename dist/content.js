@@ -860,6 +860,28 @@ const Analyzer = () => {
     const [showCompanyTags, setShowCompanyTags] = (0, react_1.useState)(false);
     const [countdown, setCountdown] = (0, react_1.useState)(null);
     const [error, setError] = (0, react_1.useState)(null);
+    const [currentUrl, setCurrentUrl] = (0, react_1.useState)(window.location.href);
+    // Reset state when URL changes
+    (0, react_1.useEffect)(() => {
+        const checkUrlChange = () => {
+            const newUrl = window.location.href;
+            if (newUrl !== currentUrl) {
+                // Reset all state when URL changes (user navigated to a different problem)
+                setCurrentUrl(newUrl);
+                setAnalysisResult(null);
+                setCompanyTagsResult(null);
+                setShowExplanation(false);
+                setShowCompanyTags(false);
+                setError(null);
+                setIsLoading(false);
+                setIsLoadingTags(false);
+                setCountdown(null);
+            }
+        };
+        // Check for URL changes every second
+        const intervalId = setInterval(checkUrlChange, 1000);
+        return () => clearInterval(intervalId);
+    }, [currentUrl]);
     (0, react_1.useEffect)(() => {
         const setInitialPosition = () => {
             var _a;
@@ -2473,8 +2495,6 @@ ___CSS_LOADER_EXPORT___.push([module.id, `.Kmrlhjh_mXvNmlm_6BSZ {
   border-radius: 5px;
   font-size: 12px;
   line-height: 1.5;
-  max-height: 350px;
-  overflow-y: auto;
   color: rgb(200, 200, 200);
 }
 
@@ -2487,48 +2507,55 @@ ___CSS_LOADER_EXPORT___.push([module.id, `.Kmrlhjh_mXvNmlm_6BSZ {
 .SMFkRoRjFvTqqB4W66F0 {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 10px;
+  margin-bottom: 4px;
 }
 
 .jWFmQ5VgjQi2UmwGhmjM {
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 600;
   color: #e0e0e0;
   margin: 0;
   padding-bottom: 4px;
   border-bottom: 1px solid rgba(86, 113, 249, 0.3);
+  letter-spacing: 0.3px;
 }
 
 .XZdGMoLdxqYYVJTtBii0 {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
+  gap: 6px;
+  margin-top: 6px;
 }
 
 .lwEmYA6y7fY8WmROlo0Y {
   background-color: rgba(86, 113, 249, 0.2);
   border: 1px solid rgba(86, 113, 249, 0.3);
-  border-radius: 4px;
-  padding: 4px 8px;
-  font-size: 13px;
-  color: #c9c9c9;
+  border-radius: 12px;
+  padding: 3px 10px;
+  font-size: 11px;
+  color: #d8d8d8;
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
+  transition: all 0.2s ease;
 }
 
 .cwEB18Cl1LZ1bVOEzo_q {
   color: #e0e0e0;
+  font-size: 11px;
+  letter-spacing: 0.2px;
 }
 
 .nWLQa5fYDQ7PqCoSRlJQ {
-  background-color: rgba(86, 113, 249, 0.4);
+  background-color: rgba(86, 113, 249, 0.5);
   border-radius: 10px;
-  padding: 1px 6px;
-  font-size: 11px;
+  padding: 1px 5px;
+  font-size: 10px;
   color: #ffffff;
-  min-width: 18px;
+  min-width: 16px;
   text-align: center;
+  font-weight: 500;
 }
 
 .IwFHA_KZjT15LsOj8QjO {

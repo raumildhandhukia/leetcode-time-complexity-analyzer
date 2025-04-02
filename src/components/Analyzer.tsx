@@ -46,6 +46,31 @@ const Analyzer: React.FC = () => {
   const [showCompanyTags, setShowCompanyTags] = useState(false);
   const [countdown, setCountdown] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [currentUrl, setCurrentUrl] = useState<string>(window.location.href);
+
+  // Reset state when URL changes
+  useEffect(() => {
+    const checkUrlChange = () => {
+      const newUrl = window.location.href;
+      if (newUrl !== currentUrl) {
+        // Reset all state when URL changes (user navigated to a different problem)
+        setCurrentUrl(newUrl);
+        setAnalysisResult(null);
+        setCompanyTagsResult(null);
+        setShowExplanation(false);
+        setShowCompanyTags(false);
+        setError(null);
+        setIsLoading(false);
+        setIsLoadingTags(false);
+        setCountdown(null);
+      }
+    };
+
+    // Check for URL changes every second
+    const intervalId = setInterval(checkUrlChange, 1000);
+    
+    return () => clearInterval(intervalId);
+  }, [currentUrl]);
 
   useEffect(() => {
     const setInitialPosition = () => {
